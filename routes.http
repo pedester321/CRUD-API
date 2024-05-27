@@ -1,0 +1,31 @@
+POST http://localhost:3333/products
+Content-Type: application/json
+
+{
+    "name": "Produto 03",
+    "price": 9.99,
+    "description": "Produto adicionado por REST API"
+}
+
+###
+
+GET http://localhost:3333/products
+
+### If search param
+
+GET http://localhost:3333/products?search=02
+
+###
+
+PUT http://localhost:3333/products/f05ca8e6-874b-4435-b5cc-0b03a7029b2b
+Content-Type: application/json
+
+{
+    "name": "Produto alterado",
+    "price": 4.59,
+    "description": "Produto alterado por REST API"
+}
+
+###
+
+DELETE  http://localhost:3333/products/5eb42776-59c6-46f8-8fc0-815216f8eeea
