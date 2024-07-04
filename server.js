@@ -10,7 +10,7 @@ const server = fastify()
 
 //GET
 server.get('/', () =>{
-    return 'Hello World 2'
+    return 'API do GroupStore'
 })
 
 server.get('/products', async (request) => {
@@ -60,6 +60,6 @@ server.delete('/products/:id',(request, reply) => {
 
 server.listen(
     {
-        port:3333
+        port: process.env.PORT ?? 3333,
     }
 )
