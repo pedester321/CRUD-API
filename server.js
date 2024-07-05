@@ -2,48 +2,41 @@ import Fastify from 'fastify';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 
+const server = Fastify();
+
 import { DatabasePostgres } from './database-postgres.js'
 
 const database = new DatabasePostgres()
-const server = Fastify({logger: true})
 
 // Configuração do Swagger
-server.register(swagger, {
+await server.register(swagger, {
     routePrefix: '/documentation',
     swagger: {
       info: {
         title: 'API GroupStore',
         description: 'API do projeto GroupStore',
-        version: '1.0.0'
+        version: '1.0.0',
       },
-      host: 'https://crud-api-4l21.onrender.com',
+      host: 'crud-api-4l21.onrender.com',
       schemes: ['http'],
       consumes: ['application/json'],
       produces: ['application/json'],
     },
     exposeRoute: true,
-  ajv: {
-    customOptions: {
-      strict: false
-    }
-  }
-});
+  });
 
-server.register(swaggerUi, {
+  
+  server.register(swaggerUi, {
     routePrefix: '/docs',
     uiConfig: {
-      docExpansion: 'full',
+      docExpansion: 'list',
       deepLinking: false,
     },
-    transformSpecification: (swaggerObject, request, reply) => {
-      return swaggerObject;
-    },
-    transformSpecificationClone: true,
     exposeRoute: true
   });
 
-//GET
-server.get('/',{
+  //GET
+  server.get('/', {
     schema: {
       description: 'Retorna uma mensagem de boas-vindas',
       tags: ['General'],
@@ -54,9 +47,9 @@ server.get('/',{
         }
       }
     }
-  }, () =>{
-    return 'API GroupStore'
-});
+  }, (request, reply) => {
+    return reply.send('API GroupStore');
+  });
 
 server.get('/products' ,{
     schema: {
@@ -203,7 +196,16 @@ server.delete('/products/:id',{
 
 server.listen(
     {
-        host: '0.0.0.0',
-        port: process.env.PORT ?? 3333,
+      host: '0.0.0.0',
+      port: process.env.PORT ?? 3333,
+    },
+    (err, address) => {
+      if (err) {
+        server.log.error(err);
+        process.exit(1);
+      }
+      console.log(`Server listening at ${address}`);
     }
-);
+  );
+  await server.ready()
+  server.swagger()
