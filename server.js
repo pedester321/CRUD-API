@@ -36,7 +36,7 @@ await server.register(swagger, {
         version: '1.0.0',
       },
       host: 'crud-api-4l21.onrender.com',
-      schemes: ['http'],
+      schemes: ['https'],
       consumes: ['application/json'],
       produces: ['application/json'],
       securityDefinitions: {
