@@ -1,12 +1,30 @@
 import Fastify from 'fastify';
+import cors from '@fastify/cors';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
+import 'dotenv/config'
 
-const server = Fastify();
+const SUPER_SECRET = process.env.SUPER_SECRET
+const server = Fastify({logger : true});
 
 import { DatabasePostgres } from './database-postgres.js'
 
 const database = new DatabasePostgres()
+
+// Middleware para verificação da chave de API
+server.decorate('checkApiKey', async (request, reply) => {
+  const apiKey = request.headers['api-key'];
+  if (!apiKey || apiKey !== SUPER_SECRET) {
+    reply.status(401).send({ error: 'Chave de API inválida' });
+  }
+});
+
+
+// Configuração do CORS
+server.register(cors, {
+    origin: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  });
 
 // Configuração do Swagger
 await server.register(swagger, {
@@ -21,6 +39,13 @@ await server.register(swagger, {
       schemes: ['http'],
       consumes: ['application/json'],
       produces: ['application/json'],
+      securityDefinitions: {
+        apiKey: {
+          type: 'apiKey',
+          name: 'api-key',
+          in: 'header',
+        },
+      },
     },
     exposeRoute: true,
   });
@@ -52,6 +77,7 @@ await server.register(swagger, {
   });
 
 server.get('/products' ,{
+    preValidation: [server.checkApiKey],
     schema: {
       description: 'Retorna uma lista de produtos',
       tags: ['Products'],
@@ -62,6 +88,7 @@ server.get('/products' ,{
         },
         required: []
       },
+      security: [{ apiKey: [] }],
       response: {
         200: {
           description: 'Lista de produtos',
@@ -88,6 +115,7 @@ server.get('/products' ,{
 
 //POST
 server.post('/products', {
+    preValidation: [server.checkApiKey],
     schema: {
       description: 'Cria um novo produto',
       tags: ['Products'],
@@ -100,6 +128,7 @@ server.post('/products', {
           description: { type: 'string' }
         }
       },
+      security: [{ apiKey: [] }],
       response: {
         201: {
             description: 'Produto criado com sucesso',
@@ -128,6 +157,7 @@ server.post('/products', {
 
 //PUT
 server.put('/products/:id',{
+    preValidation: [server.checkApiKey],
     schema: {
       description: 'Atualiza um produto existente',
       tags: ['Products'],
@@ -147,6 +177,7 @@ server.put('/products/:id',{
           description: { type: 'string' }
         }
       },
+      security: [{ apiKey: [] }],
       response: {
         204: {
             description: 'Produto atualizado com sucesso (sem conteúdo)',
@@ -169,6 +200,7 @@ server.put('/products/:id',{
 
 //DELETE
 server.delete('/products/:id',{
+    preValidation: [server.checkApiKey],
     schema: {
       description: 'Exclui um produto existente',
       tags: ['Products'],
@@ -179,6 +211,7 @@ server.delete('/products/:id',{
         },
         required: ['id']
       },
+      security: [{ apiKey: [] }],
       response: {
         204: {
           description: 'Produto excluído com sucesso (sem conteúdo)',
