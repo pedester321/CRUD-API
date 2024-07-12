@@ -3,6 +3,8 @@ import sql from './db.js'
 
 export class DatabasePostgres{
     
+    //products
+    //create
     async addProduct(product){
         const productId = randomUUID()
         
@@ -35,5 +37,19 @@ export class DatabasePostgres{
     //delete
     async deleteProduct(id){
         await sql`delete from products where id = ${id}`
+    }
+
+    //images
+    //create
+    async addImage(image){
+        const {filename, data} = image
+        await sql`INSERT INTO images (filename, data) VALUES ($1, $2)`,
+        [filename, data.buffer]
+    }
+    
+    //read
+    async getImage(id){
+        image = await sql`select data from images where id = ${id}`
+        return image
     }
 }

@@ -18,6 +18,7 @@
     "@fastify/swagger-ui": "^4.0.0",
     "dotenv": "^16.4.5",
     "fastify": "^4.28.1",
+    "fastify-multer": "^2.0.3",
     "postgres": "^3.4.4"
   }
 }
