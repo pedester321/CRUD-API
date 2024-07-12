@@ -5,7 +5,7 @@ export default function (server, opts, done) {
 
     //products
     //GET
-    server.get('/products', {
+    server.get('/', {
         preValidation: [server.checkApiKey],
         schema: {
             description: 'Retorna uma lista de produtos',
@@ -43,7 +43,7 @@ export default function (server, opts, done) {
     });
 
     //POST
-    server.post('/products', {
+    server.post('/', {
         preValidation: [server.checkApiKey],
         schema: {
             description: 'Cria um novo produto',
@@ -79,7 +79,7 @@ export default function (server, opts, done) {
     });
 
     //PUT
-    server.put('/products/:id', {
+    server.put('/:id', {
         preValidation: [server.checkApiKey],
         schema: {
             description: 'Atualiza um produto existente',
@@ -122,7 +122,7 @@ export default function (server, opts, done) {
     });
 
     //DELETE
-    server.delete('/products/:id', {
+    server.delete('/:id', {
         preValidation: [server.checkApiKey],
         schema: {
             description: 'Exclui um produto existente',

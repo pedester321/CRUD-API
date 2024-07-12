@@ -12,6 +12,10 @@ import imageRoutes from './routes/images.js';
 const SUPER_SECRET = process.env.SUPER_SECRET
 const server = Fastify({ logger: true });
 
+// Configure o multer para usar o armazenamento em memória
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
 // Middleware para verificação da chave de API
 server.decorate('checkApiKey', async (request, reply) => {
   const apiKey = request.headers['api-key'];
@@ -25,7 +29,6 @@ server.register(cors, {
   origin: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
 });
-
 
 // Configuração do Swagger
 await server.register(swagger, {
@@ -61,8 +64,8 @@ server.register(swaggerUi, {
 });
 
 //registrando as routes importadas
-server.register(productRoutes);
-server.register(imageRoutes);
+server.register(productRoutes, { prefix: '/products' });
+server.register(imageRoutes, { prefix: '/images' });
 
 //GET
 server.get('/', {

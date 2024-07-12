@@ -1,25 +1,25 @@
 import { randomUUID } from "node:crypto"
 import sql from './db.js'
 
-export class DatabasePostgres{
-    
+export class DatabasePostgres {
+
     //products
     //create
-    async addProduct(product){
+    async addProduct(product) {
         const productId = randomUUID()
-        
-        const {name, price, description} = product
+
+        const { name, price, description } = product
 
         await sql`insert into products (id, name, price, description) VALUES (${productId}, ${name}, ${price}, ${description})`
     }
 
     //read
-    async getProducts(search){
+    async getProducts(search) {
         let products
 
-        if (search ){
-            products = await sql`select * from products where name ilike ${'%'+search+'%'}` 
-        }else{
+        if (search) {
+            products = await sql`select * from products where name ilike ${'%' + search + '%'}`
+        } else {
             products = await sql`select * from products`
         }
 
@@ -27,28 +27,30 @@ export class DatabasePostgres{
     }
 
     //update
-    async updateProduct(id, product){
-        const {name, price, description} = product
+    async updateProduct(id, product) {
+        const { name, price, description } = product
 
 
         await sql`update products set name = ${name}, price = ${price}, description = ${description} WHERE id = ${id}`
     }
 
     //delete
-    async deleteProduct(id){
+    async deleteProduct(id) {
         await sql`delete from products where id = ${id}`
     }
 
     //images
     //create
-    async addImage(image){
-        const {filename, data} = image
-        await sql`INSERT INTO images (filename, data) VALUES ($1, $2)`,
-        [filename, data.buffer]
+    async addImage(image) {
+        const { filename, data } = image;
+        await sql`
+          INSERT INTO images (filename, data)
+          VALUES (${filename}, ${data.buffer})
+        `;
     }
-    
+
     //read
-    async getImage(id){
+    async getImage(id) {
         image = await sql`select data from images where id = ${id}`
         return image
     }
