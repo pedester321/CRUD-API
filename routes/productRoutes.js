@@ -1,49 +1,18 @@
-import { DatabasePostgres } from "../database-postgres.js";
+import { DatabasePostgres } from "../models/databasePostgres.js";
+import { getProducts } from "../controllers/productControllers.js";
+import { productSchemas } from "../schemas/productSchemas.js";
 const database = new DatabasePostgres()
 
-export default function (server, opts, done) {
 
-    //products
+const productRoutes = async (server, options) =>{
     //GET
-    server.get('/', {
-        preValidation: [server.checkApiKey],
-        schema: {
-            description: 'Retorna uma lista de produtos',
-            tags: ['Products'],
-            querystring: {
-                type: 'object',
-                properties: {
-                    search: { type: 'string', description: 'Termo de busca para produtos' }
-                },
-                required: []
-            },
-            security: [{ apiKey: [] }],
-            response: {
-                200: {
-                    description: 'Lista de produtos',
-                    type: 'array',
-                    items: {
-                        type: 'object',
-                        properties: {
-                            id: { type: 'string', format: 'uuid', description: 'UUID do produto' },
-                            name: { type: 'string' },
-                            price: { type: 'number', description: 'Preço do produto' },
-                            description: { type: 'string' }
-                        }
-                    }
-                }
-            }
-        }
-    }, async (request) => {
-        const search = request.query.search
-
-        const products = database.getProducts(search)
-
-        return products
-    });
+    server.get('/products', {
+        //preValidation: [server.checkApiKey],
+        schema: productSchemas.getProducts
+    }, getProducts);
 
     //POST
-    server.post('/', {
+    server.post('/products', {
         preValidation: [server.checkApiKey],
         schema: {
             description: 'Cria um novo produto',
@@ -79,7 +48,7 @@ export default function (server, opts, done) {
     });
 
     //PUT
-    server.put('/:id', {
+    server.put('/products/:id', {
         preValidation: [server.checkApiKey],
         schema: {
             description: 'Atualiza um produto existente',
@@ -122,7 +91,7 @@ export default function (server, opts, done) {
     });
 
     //DELETE
-    server.delete('/:id', {
+    server.delete('/products/:id', {
         preValidation: [server.checkApiKey],
         schema: {
             description: 'Exclui um produto existente',
@@ -149,5 +118,6 @@ export default function (server, opts, done) {
 
         return reply.status(204).send //sucesso sem conteudo
     });
-    done();
-}
+};
+
+export default productRoutes;

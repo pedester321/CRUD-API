@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    .product-list {
+      list-style-type: none;
+      padding: 0;
+    }
+    .product-item {
+      border: 1px solid #ccc;
+      margin: 10px 0;
+      padding: 10px;
+    }
+    .product-item h2 {
+      margin: 0;
+      font-size: 1.5em;
+    }
+    .product-item p {
+      margin: 0.5em 0;
+    }
+    .product-item .price {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Product List</h1>
+  <ul class="product-list">
+    <% products.forEach(product => { %>
+      <li class="product-item">
+        <h2><%= product.name %></h2>
+        <p class="price">$<%= product.price %></p>
+        <p><%= product.description %></p>
+      </li>
+    <% }) %>
+  </ul>
+</body>
+</html>

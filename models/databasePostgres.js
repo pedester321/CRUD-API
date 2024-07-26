@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto"
-import sql from './db.js'
+import sql from './postgresClient.js'
 
 export class DatabasePostgres {
 
@@ -42,16 +42,17 @@ export class DatabasePostgres {
     //images
     //create
     async addImage(image) {
-        const { filename, data } = image;
+        const{filename, data} = image
+
         await sql`
           INSERT INTO images (filename, data)
-          VALUES (${filename}, ${data.buffer})
+          VALUES (${filename}, ${data})
         `;
     }
 
     //read
     async getImage(id) {
         image = await sql`select data from images where id = ${id}`
-        return image
+        return image.rows[0].data
     }
 }

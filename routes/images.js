@@ -1,13 +1,9 @@
-import { DatabasePostgres } from "../database-postgres.js";
-import multer from 'fastify-multer'
+import { DatabasePostgres } from "../models/databasePostgres.js";
 const database = new DatabasePostgres()
 
 
 export default function (server, opts, done) {
-    // Configure o multer para usar o armazenamento em memória
-    const upload = multer({ dest: 'uploads/' })
-    // Registrar o content parser do multer
-    server.register(multer.contentParser);
+
 
     //images
     //GET
@@ -32,35 +28,33 @@ export default function (server, opts, done) {
         }
     }, async (request) => {
         const imageId = request.params.id
-        const image = database.getImage(imageId)
-        return image
+        const imageBuffer = await database.getImage(request.params.id);
+        reply.type('image/jpeg').send(imageBuffer);
     });
 
-    server.post('/',
-        { 
-            preValidation: [server.checkApiKey],
-            preHandle: upload.single('file') 
-        },
-        function (request, reply) {
 
-            const { file } = request;
-            if (!file) {
-                return reply.code(400).send({ error: 'No file uploaded' });
-            }
+    //POST
+    server.post('/',
+        {
+            preValidation: [server.checkApiKey],
+        },
+        async function (request, reply) {
+
+            const data = await request.file()
+
+            const buffer = await data.toBuffer()
 
             const image = {
-                filename: request.body,
-                data: request.file
+                filename: data.filename,
+                data: buffer
             }
-
-            //database.addImage(image)
-            console.log(image)
+            database.addImage(image)
+            // console.log(image)
             return reply.status(201).send() //algo foi criado
         });
     //POST
     // server.post('/images', {
     //     preValidation: [server.checkApiKey],
-    //     preHandler: upload.single('file'),
     //     schema: {
     //         description: 'Salva uma nova imagem',
     //         tags: ['Images'],

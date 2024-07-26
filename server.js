@@ -3,18 +3,24 @@ import cors from '@fastify/cors';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import 'dotenv/config';
-import multer from 'fastify-multer'
+import fastifyMultipart from '@fastify/multipart';
+import ejs from 'ejs';
+import fastifyView from'@fastify/view';
 
 //importando as routes
-import productRoutes from './routes/products.js';
+import productRoutes from './routes/productRoutes.js';
 import imageRoutes from './routes/images.js';
 
 const SUPER_SECRET = process.env.SUPER_SECRET
 const server = Fastify({ logger: true });
 
-// Configure o multer para usar o armazenamento em memória
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
+server.register(fastifyView, {
+  engine: {
+    ejs: ejs,
+  }
+});
+
+server.register(fastifyMultipart);
 
 // Middleware para verificação da chave de API
 server.decorate('checkApiKey', async (request, reply) => {
@@ -64,7 +70,7 @@ server.register(swaggerUi, {
 });
 
 //registrando as routes importadas
-server.register(productRoutes, { prefix: '/products' });
+server.register(productRoutes);
 server.register(imageRoutes, { prefix: '/images' });
 
 //GET
