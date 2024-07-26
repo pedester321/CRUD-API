@@ -7,5 +7,5 @@ const database = new DatabasePostgres();
 export const getProducts = async (request, reply) =>{
     const search = request.query.search
     const products = await database.getProducts(search)
-    return reply.view('products.ejs',{products})
+    return reply.view('/views/products.ejs',{products})
 }
