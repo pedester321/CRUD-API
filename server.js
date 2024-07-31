@@ -1,7 +1,8 @@
 import Fastify from 'fastify';
-import cors from '@fastify/cors';
-import swagger from '@fastify/swagger';
-import swaggerUi from '@fastify/swagger-ui';
+import { checkApiKey } from './middlewares/apiKeyMiddleware.js';
+import { configureCors } from './middlewares/corsConfig.js';
+import { configureSwagger } from './middlewares/swaggerConfig.js';
+import { configureSwaggerUi } from './middlewares/swaggerUiConfig.js';
 import 'dotenv/config';
 import fastifyMultipart from '@fastify/multipart';
 import ejs from 'ejs';
@@ -9,9 +10,8 @@ import fastifyView from'@fastify/view';
 
 //importando as routes
 import productRoutes from './routes/productRoutes.js';
-import imageRoutes from './routes/images.js';
+import imageRoutes from './routes/imageRoutes.js';
 
-const SUPER_SECRET = process.env.SUPER_SECRET
 const server = Fastify({ logger: true });
 
 server.register(fastifyView, {
@@ -22,56 +22,15 @@ server.register(fastifyView, {
 
 server.register(fastifyMultipart);
 
-// Middleware para verificação da chave de API
-server.decorate('checkApiKey', async (request, reply) => {
-  const apiKey = request.headers['api-key'];
-  if (!apiKey || apiKey !== SUPER_SECRET) {
-    reply.status(401).send({ error: 'Chave de API inválida' });
-  }
-});
-
-// Configuração do CORS
-server.register(cors, {
-  origin: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-});
-
-// Configuração do Swagger
-await server.register(swagger, {
-  routePrefix: '/documentation',
-  swagger: {
-    info: {
-      title: 'API GroupStore',
-      description: 'API do projeto GroupStore',
-      version: '1.0.0',
-    },
-    host: 'crud-api-4l21.onrender.com',
-    schemes: ['https'],
-    consumes: ['application/json'],
-    produces: ['application/json'],
-    securityDefinitions: {
-      apiKey: {
-        type: 'apiKey',
-        name: 'api-key',
-        in: 'header',
-      },
-    },
-  },
-  exposeRoute: true,
-});
-
-server.register(swaggerUi, {
-  routePrefix: '/docs',
-  uiConfig: {
-    docExpansion: 'list',
-    deepLinking: false,
-  },
-  exposeRoute: true
-});
+// Aplicando middlewares e configurações
+server.decorate('checkApiKey', checkApiKey);
+configureCors(server);
+await configureSwagger(server);
+configureSwaggerUi(server);
 
 //registrando as routes importadas
 server.register(productRoutes);
-server.register(imageRoutes, { prefix: '/images' });
+//server.register(imageRoutes, { prefix: '/images' });
 
 //GET
 server.get('/', {
